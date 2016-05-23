@@ -54,8 +54,8 @@ class EncryptStreamTest extends KernelTestBase {
   public function register(ContainerBuilder $container) {
     parent::register($container);
 
-    $container->register('stream_wrapper.' . 'encrypted', EncryptStreamWrapper::class)
-      ->addTag('stream_wrapper', ['scheme' => 'encrypted']);
+    $container->register('stream_wrapper.' . EncryptStreamWrapper::SCHEME, EncryptStreamWrapper::class)
+      ->addTag('stream_wrapper', ['scheme' => EncryptStreamWrapper::SCHEME]);
   }
 
   /**
@@ -115,12 +115,12 @@ class EncryptStreamTest extends KernelTestBase {
 
   public function testDecrypt() {
     $this->assertFalse(file_exists('vfs://root/encrypt_test/example.txt'));
-    $this->assertFalse(file_exists('encrypted://encryption_profile_1/example.txt'));
+    $this->assertFalse(file_exists(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt'));
 
-    file_put_contents('encrypted://encryption_profile_1/example.txt', 'test-data');
+    file_put_contents(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt', 'test-data');
     $this->assertNotEquals('test-data', file_get_contents('vfs://root/encrypt_test/example.txt'));
 
-    $content = file_get_contents('encrypted://encryption_profile_1/example.txt');
+    $content = file_get_contents(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt');
     $this->assertEquals('test-data', $content);
   }
 

@@ -9,6 +9,8 @@ use Drupal\Core\Url;
 
 class EncryptStreamWrapper extends LocalStream {
 
+  const SCHEME = 'encrypt';
+
   protected $fileInfo;
   protected $mode;
   protected $encryptionProfile;
