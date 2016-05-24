@@ -6,14 +6,35 @@ use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\LocalStream;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Url;
+use Drupal\encrypt\EncryptionProfileInterface;
 
+/**
+ * Provides a scheme wrapper which encrypts / decrypts automatically.
+ *
+ * Therefore it has the encryption profile as part of the URL:
+ *
+ * @code
+ * encrypt://example_profile/foo.txt
+ * @endcode
+ */
 class EncryptStreamWrapper extends LocalStream {
 
+  /**
+   * Defines the schema used by the encrypt stream wrapper.
+   */
   const SCHEME = 'encrypt';
 
+  /**
+   * An array of file info, each being an array.
+   *
+   * @var array[]
+   */
   protected $fileInfo;
+
+  /**
+   * @var
+   */
   protected $mode;
-  protected $encryptionProfile;
 
   /**
    * {@inheritdoc}
@@ -57,53 +78,64 @@ class EncryptStreamWrapper extends LocalStream {
    *
    * Note that this static method is used by \Drupal\system\Form\FileSystemForm
    * so you should alter that form or substitute a different form if you change
-   * the class providing the stream_wrapper.private service.
+   * the class providing the stream_wrapper.encrypt service.
    *
    * @return string
-   *   The base path for private://.
+   *   The base path for encrypt://.
    */
   public static function basePath() {
     return Settings::get('encrypted_file_path', '');
   }
 
   /**
+   * Decrypts a given file.
+   *
    * @param string $raw_file
-   * @param string $encryption_profile
+   *   The encrypted content of the raw file.
+   * @param \Drupal\encrypt\EncryptionProfileInterface $encryption_profile
+   *   The used encryption profile.
    *
    * @return string
+   *   The decrypted string.
    */
-  protected function decrypt($raw_file, $encryption_profile) {
+  protected function decrypt($raw_file, EncryptionProfileInterface $encryption_profile) {
     /** @var \Drupal\encrypt\EncryptService $encryption */
     $encryption = \Drupal::service('encryption');
-    return $encryption->decrypt($raw_file, $this->getEncryptionProfile($encryption_profile));
+    return $encryption->decrypt($raw_file, $encryption_profile);
   }
 
   /**
+   * Encrypts a given file.
+   *
    * @param string $raw_file
-   * @param string $encryption_profile
+   *   The descrypted content of the raw file.
+   * @param \Drupal\encrypt\EncryptionProfileInterface $encryption_profile
+   *   The used encryption profile.
    *
    * @return string
+   *   The encrypted string.
    */
-  protected function encrypt($raw_file, $encryption_profile) {
+  protected function encrypt($raw_file, EncryptionProfileInterface $encryption_profile) {
     /** @var \Drupal\encrypt\EncryptService $encryption */
     $encryption = \Drupal::service('encryption');
-    return $encryption->encrypt($raw_file, $this->getEncryptionProfile($encryption_profile));
+    return $encryption->encrypt($raw_file, $encryption_profile);
   }
 
   /**
-   * @param string $encryption_profile
+   * Extracta the encryption profile from an URI.
+   *
+   * @param string $uri
+   *   The URI of the encrypt URI.
    *
    * @return \Drupal\Core\Entity\EntityInterface|\Drupal\encrypt\EncryptionProfileInterface|null
+   *   The encryption profile
    */
-  protected function getEncryptionProfile($encryption_profile) {
+  protected function extractEncryptionProfile($uri) {
     /** @var \Drupal\encrypt\EncryptionProfileManager $profile_manager */
     $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
-    return $profile_manager->getEncryptionProfile($encryption_profile);
+    return $profile_manager->getEncryptionProfile(parse_url($uri, PHP_URL_HOST));
   }
 
-  protected function extractEncryptionProfile($uri) {
-    return $this->encryptionProfile = parse_url($uri, PHP_URL_HOST);
-  }
   /**
    * {@inheritdoc}
    */
@@ -114,7 +146,7 @@ class EncryptStreamWrapper extends LocalStream {
       mkdir($fe_directory, 0755);
     }
 
-    $this->extractEncryptionProfile($uri);
+    $encryption_profile = $this->extractEncryptionProfile($uri);
 
     // Load resource location.
     $this->uri = $uri;
@@ -126,7 +158,7 @@ class EncryptStreamWrapper extends LocalStream {
     // If file exists, decrypt and load it into memory.
     if (file_exists($path)) {
       $raw_file = file_get_contents($path);
-      $decrypted_file = $this->decrypt($raw_file, $this->encryptionProfile);
+      $decrypted_file = $this->decrypt($raw_file, $encryption_profile);
       $this->setFileInfo($decrypted_file, $uri);
       // Write to memory.
       fwrite($this->handle, $decrypted_file);
@@ -165,10 +197,13 @@ class EncryptStreamWrapper extends LocalStream {
       fclose($this->handle);
       return;
     }
+
+    $encryption_profile = $this->extractEncryptionProfile($this->uri);
+
     // Encrypt file and save.
     rewind($this->handle);
     $file_contents = stream_get_contents($this->handle);
-    file_put_contents($this->getLocalPath(), $this->encrypt($file_contents, $this->encryptionProfile));
+    file_put_contents($this->getLocalPath(), $this->encrypt($file_contents, $encryption_profile));
     // Store important file info.
     $this->setFileInfo($file_contents, $this->uri);
     // Close handle and reset manual key.
