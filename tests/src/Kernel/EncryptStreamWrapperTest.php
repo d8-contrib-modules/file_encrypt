@@ -11,7 +11,7 @@ use Drupal\file_encrypt\EncryptStreamWrapper;
  *
  * @see \Drupal\file_encrypt\EncryptStreamWrapper
  */
-class EncryptStreamTest extends FileEncryptTestBase {
+class EncryptStreamWrapperTest extends FileEncryptTestBase {
 
   /**
    * Tests the stream wrapper using a non streaming encryption method.
