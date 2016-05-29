@@ -9,6 +9,9 @@ use Drupal\file_encrypt\EncryptStreamWrapper;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\key\Entity\Key;
 
+/**
+ * Base test class for all kind of file encrypt tests.
+ */
 abstract class FileEncryptTestBase extends KernelTestBase {
 
   /**

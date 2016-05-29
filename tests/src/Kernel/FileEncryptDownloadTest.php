@@ -6,6 +6,11 @@ use Drupal\file\Entity\File;
 use Drupal\file_encrypt\EncryptStreamWrapper;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Tests downloading an encrypted file via HTTP.
+ *
+ * @group file_encrypt
+ */
 class FileEncryptDownloadTest extends FileEncryptTestBase {
 
   /**
@@ -37,6 +42,9 @@ class FileEncryptDownloadTest extends FileEncryptTestBase {
     ])->save();
   }
 
+  /**
+   * Tests a file download via HTTP.
+   */
   public function testFileDownloadViaHttp() {
     $request = Request::create('/encrypt/files/encryption_profile_1/example.txt');
     /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel */

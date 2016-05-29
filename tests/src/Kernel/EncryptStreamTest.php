@@ -5,11 +5,18 @@ namespace Drupal\Tests\file_encrypt\Kernel;
 use Drupal\file_encrypt\EncryptStreamWrapper;
 
 /**
+ * Tests the encryption stream wrapper.
+ *
  * @group file_encrypt
+ *
+ * @see \Drupal\file_encrypt\EncryptStreamWrapper
  */
 class EncryptStreamTest extends FileEncryptTestBase {
 
-  public function testDecrypt() {
+  /**
+   * Tests the stream wrapper using a non streaming encryption method.
+   */
+  public function testNonStreamingEncryption() {
     $this->assertFalse(file_exists('vfs://root/encrypt_test/example.txt'));
     $this->assertFalse(file_exists(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt'));
 
