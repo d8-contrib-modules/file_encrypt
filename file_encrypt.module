@@ -1,0 +1,10 @@
+<?php
+use Drupal\file_encrypt\Hooks\FieldStorageConfigEditFormAlter;
+
+/**
+ * Implements hook_form_field_storage_config_edit_form_alter().
+ */
+function file_encrypt_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  (new FieldStorageConfigEditFormAlter(\Drupal::service('plugin.manager.field.field_type'), \Drupal::service('encrypt.encryption_profile.manager')))
+    ->alterForm($form, $form_state);
+}
