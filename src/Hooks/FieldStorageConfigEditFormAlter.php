@@ -6,7 +6,6 @@ use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\encrypt\EncryptionProfileManagerInterface;
-use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 
@@ -48,9 +47,8 @@ class FieldStorageConfigEditFormAlter {
   /**
    * @param \Drupal\field\FieldStorageConfigInterface $field_storage_config
    * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  protected function doFormAlter(FieldStorageConfigInterface $field_storage_config, array &$form, FormStateInterface $form_state) {
+  protected function doFormAlter(FieldStorageConfigInterface $field_storage_config, array &$form) {
     $options = $this->encryptionProfileManager->getEncryptionProfileNamesAsOptions();
     if (empty($options)) {
       $form['settings']['encryption_profile'] = [
