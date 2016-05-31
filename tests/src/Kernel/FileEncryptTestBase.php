@@ -10,9 +10,9 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\key\Entity\Key;
 
 /**
- * @group file_encrypt
+ * Base test class for all kind of file encrypt tests.
  */
-class EncryptStreamTest extends KernelTestBase {
+abstract class FileEncryptTestBase extends KernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -112,16 +112,5 @@ class EncryptStreamTest extends KernelTestBase {
     $this->encryptionProfiles['encryption_profile_2'] = $encryption_profile_2;
   }
 
-
-  public function testDecrypt() {
-    $this->assertFalse(file_exists('vfs://root/encrypt_test/example.txt'));
-    $this->assertFalse(file_exists(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt'));
-
-    file_put_contents(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt', 'test-data');
-    $this->assertNotEquals('test-data', file_get_contents('vfs://root/encrypt_test/example.txt'));
-
-    $content = file_get_contents(EncryptStreamWrapper::SCHEME . '://encryption_profile_1/example.txt');
-    $this->assertEquals('test-data', $content);
-  }
 
 }

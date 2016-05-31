@@ -68,8 +68,9 @@ class EncryptStreamWrapper extends LocalStream {
    * {@inheritdoc}
    */
   public function getExternalUrl() {
+    $profile = $this->extractEncryptionProfile($this->uri);
     $path = str_replace('\\', '/', $this->getTarget());
-    return Url::fromRoute('system.encrypted_file_download', ['filepath' => $path], ['absolute' => TRUE])
+    return Url::fromRoute('file_encrypt.file_download', ['file' => $profile->id() . '/' . $path], ['absolute' => TRUE])
       ->toString(TRUE)->getGeneratedUrl();
   }
 
