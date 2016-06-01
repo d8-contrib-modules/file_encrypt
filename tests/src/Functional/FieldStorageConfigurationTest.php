@@ -18,7 +18,7 @@ class FieldStorageConfigurationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['file_encrypt', 'encrypt', 'key', 'encrypt_test', 'node', 'file', 'field_ui'];
+  public static $modules = ['file_encrypt', 'encrypt', 'key', 'encrypt_test', 'node', 'file', 'field_ui', 'image'];
 
   /**
    * A list of testkeys.
@@ -111,6 +111,7 @@ class FieldStorageConfigurationTest extends BrowserTestBase {
     ])->save();
 
     $assert = $this->assertSession();
+    // Test a file field.
     $this->drupalGet('admin/structure/types/manage/page/fields/add-field');
     $assert->statusCodeEquals(200);
 
@@ -120,14 +121,30 @@ class FieldStorageConfigurationTest extends BrowserTestBase {
       'label' => 'New file field',
     ], 'Save and continue');
 
-    file_put_contents('/tmp/foo.html', $this->getSession()->getPage()->getHtml());
-
     $this->submitForm([
       'settings[uri_scheme]' => 'encrypt',
       'settings[encryption_profile]' => 'encryption_profile_1',
     ], 'Save field settings');
 
     $field_storage_config = FieldStorageConfig::load('node.field_test_file');
+    $this->assertEquals('encryption_profile_1', $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile'));
+
+    // Test an image field.
+    $this->drupalGet('admin/structure/types/manage/page/fields/add-field');
+    $assert->statusCodeEquals(200);
+
+    $this->submitForm([
+      'new_storage_type' => 'image',
+      'field_name' => 'test_image',
+      'label' => 'New image field',
+    ], 'Save and continue');
+
+    $this->submitForm([
+      'settings[uri_scheme]' => 'encrypt',
+      'settings[encryption_profile]' => 'encryption_profile_1',
+    ], 'Save field settings');
+
+    $field_storage_config = FieldStorageConfig::load('node.field_test_image');
     $this->assertEquals('encryption_profile_1', $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile'));
   }
 
