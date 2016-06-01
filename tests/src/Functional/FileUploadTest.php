@@ -131,7 +131,7 @@ class FileUploadTest extends FunctionalTestBase {
    *   (optional) File size in bytes to match. Defaults to NULL, which will not
    *   filter the returned list by size.
    *
-   * @return
+   * @return \Drupal\file\Entity\File[]
    *   List of files in public:// that match the filter(s).
    */
   protected function drupalGetTestFiles($type, $size = NULL) {

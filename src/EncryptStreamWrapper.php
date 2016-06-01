@@ -92,6 +92,8 @@ class EncryptStreamWrapper extends LocalStream {
    * {@inheritdoc}
    */
   public function dirname($uri = NULL) {
+    // This method adds the encryption profile to the URI.
+
     if (!$uri) {
       $uri = $this->uri;
     }

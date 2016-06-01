@@ -13,6 +13,9 @@ use Drupal\node\Entity\NodeType;
  */
 class FieldStorageConfigurationTest extends FunctionalTestBase {
 
+  /**
+   * Tests the field storage adding.
+   */
   public function testFieldStorageSettingsForm() {
     $account = $this->drupalCreateUser([
       'administer content types',
