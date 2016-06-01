@@ -9,6 +9,12 @@ use Drupal\encrypt\EncryptionProfileManagerInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 
+/**
+ * Class which implements hook_form_field_storage_config_edit_form_alter().
+ *
+ * The general idea is to change the field storage configuration form to allow
+ * storing a encryption profile when the encrypt
+ */
 class FieldStorageConfigEditFormAlter {
 
   use StringTranslationTrait;
@@ -45,8 +51,12 @@ class FieldStorageConfigEditFormAlter {
   }
 
   /**
+   * Adds the encryption_profile setting to the field storage settings form.
+   *
    * @param \Drupal\field\FieldStorageConfigInterface $field_storage_config
+   *   The field storage.
    * @param array $form
+   *   The changed form.
    */
   protected function doFormAlter(FieldStorageConfigInterface $field_storage_config, array &$form) {
     $options = $this->encryptionProfileManager->getEncryptionProfileNamesAsOptions();
@@ -72,6 +82,18 @@ class FieldStorageConfigEditFormAlter {
     $form['#entity_builders'][] = static::class . '::buildEntity';
   }
 
+  /**
+   * Builds the entity by adding the encryption_profile third party settings.
+   *
+   * @param string $entity_type_id
+   *    The entity type ID.
+   * @param \Drupal\field\FieldStorageConfigInterface $field_storage_config
+   *   The field storage configuration.
+   * @param array $form
+   *   The original form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
   public static function buildEntity($entity_type_id, FieldStorageConfigInterface $field_storage_config, $form, FormStateInterface $form_state) {
     if ($encryption_profile = $form_state->getValue(['settings', 'encryption_profile'])) {
       $field_storage_config->setThirdPartySetting('file_encrypt', 'encryption_profile', $encryption_profile);
