@@ -37,7 +37,7 @@ function file_encrypt_field_storage_config_presave(FieldStorageConfigInterface $
     foreach ($field_configs as $field_config) {
       $file_directory = $field_config->getSetting('file_directory');
       // Ensure that destination directory starts with the encryption profile.
-      if (strpos($file_directory, $encryption_profile . '/') !== 0) {
+      if (strpos($file_directory, $encryption_profile) !== 0) {
         $field_config->setSetting('file_directory', $encryption_profile . '/' . $file_directory);
         $field_config_storage->save($field_config);
       }
@@ -57,7 +57,7 @@ function file_encrypt_field_config_presave(FieldConfigInterface $field_config) {
     $encryption_profile = $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile');
     // Ensure that destination directory starts with the encryption profile.
     $file_directory = $field_config->getSetting('file_directory');
-    if (strpos($file_directory, $encryption_profile . '/') !== 0) {
+    if (strpos($file_directory, $encryption_profile) !== 0) {
       $field_config->setSetting('file_directory', $encryption_profile . '/' . $file_directory);
     }
   }

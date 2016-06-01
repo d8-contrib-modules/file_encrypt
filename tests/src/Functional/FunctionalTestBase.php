@@ -92,6 +92,15 @@ abstract class FunctionalTestBase extends BrowserTestBase {
 
     $this->createTestKeys();
     $this->createTestEncryptionProfiles();
+
+    $this->writeSettings([
+      'settings' => [
+        'encrypted_file_path' => (object) [
+            'value' => $this->publicFilesDirectory,
+            'required' => TRUE,
+        ],
+      ],
+    ]);
   }
 
 }
