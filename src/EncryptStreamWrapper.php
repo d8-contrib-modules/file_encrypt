@@ -89,6 +89,28 @@ class EncryptStreamWrapper extends LocalStream {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function dirname($uri = NULL) {
+    // This method adds the encryption profile to the URI.
+
+    if (!$uri) {
+      $uri = $this->uri;
+    }
+    $encryption_profile = parse_url($uri, PHP_URL_HOST);
+
+    list($scheme) = explode('://', $uri, 2);
+    $target = $this->getTarget($uri);
+    $dirname = dirname($target);
+
+    if ($dirname == '.') {
+      $dirname = '';
+    }
+
+    return $scheme . '://' . $encryption_profile . '/' . $dirname;
+  }
+
+  /**
    * Decrypts a given file.
    *
    * @param string $raw_file
@@ -128,13 +150,20 @@ class EncryptStreamWrapper extends LocalStream {
    * @param string $uri
    *   The URI of the encrypt URI.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|\Drupal\encrypt\EncryptionProfileInterface|null
-   *   The encryption profile
+   * @return \Drupal\Core\Entity\EntityInterface|\Drupal\encrypt\EncryptionProfileInterface|null The encryption profile
+   * The encryption profile
+   *
+   * @throws \Exception
+   *   Thrown when the profile doesn't exist.
    */
   protected function extractEncryptionProfile($uri) {
     /** @var \Drupal\encrypt\EncryptionProfileManager $profile_manager */
     $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
-    return $profile_manager->getEncryptionProfile(parse_url($uri, PHP_URL_HOST));
+    $result = $profile_manager->getEncryptionProfile(parse_url($uri, PHP_URL_HOST));
+    if (!$result) {
+      throw new \Exception('Missing profile: ' . parse_url($uri, PHP_URL_HOST));
+    }
+    return $result;
   }
 
   /**
