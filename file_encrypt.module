@@ -5,6 +5,7 @@
  * Provides the necessary hooks for the file_encrypt module.
  */
 
+use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\file_encrypt\EncryptStreamWrapper;
 use Drupal\file_encrypt\Hooks\FieldStorageConfigEditFormAlter;
@@ -40,6 +41,24 @@ function file_encrypt_field_storage_config_presave(FieldStorageConfigInterface $
         $field_config->setSetting('file_directory', $encryption_profile . '/' . $file_directory);
         $field_config_storage->save($field_config);
       }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_config_presave().
+ */
+function file_encrypt_field_config_presave(FieldConfigInterface $field_config) {
+  // Add the encryption profile to the destination directory, so the stream
+  // wrapper gets the encryption profile passed along.
+  /** @var \Drupal\field\FieldStorageConfigInterface $field_storage_config */
+  $field_storage_config = $field_config->getFieldStorageDefinition();
+  if ($field_storage_config->getSetting('uri_scheme') === EncryptStreamWrapper::SCHEME) {
+    $encryption_profile = $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile');
+    // Ensure that destination directory starts with the encryption profile.
+    $file_directory = $field_config->getSetting('file_directory');
+    if (strpos($file_directory, $encryption_profile . '/') !== 0) {
+      $field_config->setSetting('file_directory', $encryption_profile . '/' . $file_directory);
     }
   }
 }
