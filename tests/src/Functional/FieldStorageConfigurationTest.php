@@ -3,6 +3,7 @@
 namespace Drupal\Tests\file_encrypt\Functional;
 
 use Drupal\encrypt\Entity\EncryptionProfile;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\key\Entity\Key;
 use Drupal\node\Entity\NodeType;
@@ -129,6 +130,9 @@ class FieldStorageConfigurationTest extends BrowserTestBase {
     $field_storage_config = FieldStorageConfig::load('node.field_test_file');
     $this->assertEquals('encryption_profile_1', $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile'));
 
+    $field_config = FieldConfig::load('node.page.field_test_file');
+    $this->assertStringStartsWith('encryption_profile_1', $field_config->getSetting('file_directory'));
+
     // Test an image field.
     $this->drupalGet('admin/structure/types/manage/page/fields/add-field');
     $assert->statusCodeEquals(200);
@@ -146,6 +150,9 @@ class FieldStorageConfigurationTest extends BrowserTestBase {
 
     $field_storage_config = FieldStorageConfig::load('node.field_test_image');
     $this->assertEquals('encryption_profile_1', $field_storage_config->getThirdPartySetting('file_encrypt', 'encryption_profile'));
+
+    $field_config = FieldConfig::load('node.page.field_test_file');
+    $this->assertStringStartsWith('encryption_profile_1', $field_config->getSetting('file_directory'));
   }
 
 }
