@@ -45,7 +45,7 @@ class FieldStorageConfigEditFormAlter {
     /** @var \Drupal\field\FieldStorageConfigInterface $field_storage_config */
     $field_storage_config = $form_state->getFormObject()->getEntity();
     $field_type_definition = $this->fieldTypeManager->getDefinition($field_storage_config->getType());
-    if (is_subclass_of($field_type_definition['class'], FileItem::class)) {
+    if (is_a($field_type_definition['class'], FileItem::class, TRUE)) {
       $this->doFormAlter($field_storage_config, $form, $form_state);
     }
   }
