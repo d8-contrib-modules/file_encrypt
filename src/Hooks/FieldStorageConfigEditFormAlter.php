@@ -66,6 +66,7 @@ class FieldStorageConfigEditFormAlter {
       ];
     }
     else {
+      $form['settings']['uri_scheme']['#weight'] = -10;
       $form['settings']['encryption_profile'] = [
         '#type' => 'radios',
         '#title' => $this->t('Encryption profile'),
@@ -76,6 +77,7 @@ class FieldStorageConfigEditFormAlter {
             'input[name="settings[uri_scheme]"]' => ['value' => 'encrypt'],
           ],
         ],
+        '#weight' => -5,
       ];
     }
 
