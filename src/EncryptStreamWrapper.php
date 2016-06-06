@@ -159,7 +159,14 @@ class EncryptStreamWrapper extends LocalStream {
   protected function extractEncryptionProfile($uri) {
     /** @var \Drupal\encrypt\EncryptionProfileManager $profile_manager */
     $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
-    $result = $profile_manager->getEncryptionProfile(parse_url($uri, PHP_URL_HOST));
+
+    // Add support for image styles.
+    $encryption_profile_id = parse_url($uri, PHP_URL_HOST);
+    if (preg_match('#^encrypt://styles/[\w]+/encrypt/([\w]+)#i', $uri, $matches)) {
+      $encryption_profile_id = $matches[1];
+    }
+    $result = $profile_manager->getEncryptionProfile($encryption_profile_id);
+
     if (!$result) {
       throw new \Exception('Missing profile: ' . parse_url($uri, PHP_URL_HOST));
     }
