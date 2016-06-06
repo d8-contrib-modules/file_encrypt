@@ -20,5 +20,5 @@ mkdir -p "$DRUPAL_TI_DRUPAL_DIR/$DRUPAL_TI_MODULES_PATH"
 cd "$DRUPAL_TI_DRUPAL_DIR/$DRUPAL_TI_MODULES_PATH"
 
 # Manually clone the dependencies
-git clone --depth 1 https://github.com/d8-contrib-modules/encrypt.git
-git clone --depth 1 https://github.com/d8-contrib-modules/key.git
+git clone --depth 1 https://github.com/d8-contrib-modules/encrypt.git -b 8.x-3.x
+git clone --depth 1 https://github.com/d8-contrib-modules/key.git -b 8.x-1.x
