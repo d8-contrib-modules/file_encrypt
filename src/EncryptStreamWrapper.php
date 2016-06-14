@@ -40,7 +40,7 @@ class EncryptStreamWrapper extends LocalStream {
    * {@inheritdoc}
    */
   public static function getType() {
-    return StreamWrapperInterface::LOCAL_NORMAL;
+    return StreamWrapperInterface::NORMAL;
   }
 
   /**
@@ -70,7 +70,16 @@ class EncryptStreamWrapper extends LocalStream {
   public function getExternalUrl() {
     $profile = $this->extractEncryptionProfile($this->uri);
     $path = str_replace('\\', '/', $this->getTarget());
-    return Url::fromRoute('file_encrypt.file_download', ['file' => $profile->id() . '/' . $path], ['absolute' => TRUE])
+
+    // The image style already has a file path. included
+    if (strpos($path, 'styles/') === 0) {
+      $file = $path;
+    }
+    else {
+      $file = $profile->id() . '/' . $path;
+    }
+
+    return Url::fromRoute('system.encrypt_file_download', ['filepath' => $file], ['absolute' => TRUE])
       ->toString(TRUE)->getGeneratedUrl();
   }
 
@@ -159,7 +168,16 @@ class EncryptStreamWrapper extends LocalStream {
   protected function extractEncryptionProfile($uri) {
     /** @var \Drupal\encrypt\EncryptionProfileManager $profile_manager */
     $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
-    $result = $profile_manager->getEncryptionProfile(parse_url($uri, PHP_URL_HOST));
+
+    // Add support for image styles.
+    if (preg_match('/^encrypt:\/\/styles\/\w+\/encrypt\/(\w+)/i', $uri, $match)) {
+      $profile = $match[1];
+    }
+    else {
+      $profile = parse_url($uri, PHP_URL_HOST);
+    }
+
+    $result = $profile_manager->getEncryptionProfile($profile);
     if (!$result) {
       throw new \Exception('Missing profile: ' . parse_url($uri, PHP_URL_HOST));
     }
@@ -210,7 +228,13 @@ class EncryptStreamWrapper extends LocalStream {
       $uri = $this->uri;
     }
 
-    $target = parse_url($uri, PHP_URL_PATH);
+    // Add support for image styles.
+    if (preg_match('/^encrypt:\/\/styles\/\w+\/encrypt\/(\w+)/i', $uri, $match)) {
+      $target = str_replace('encrypt://', '', $uri);
+    }
+    else {
+      $target = parse_url($uri, PHP_URL_PATH);
+    }
 
     // Remove erroneous leading or trailing, forward-slashes and backslashes.
     return trim($target, '\/');

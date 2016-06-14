@@ -19,6 +19,13 @@ function file_encrypt_form_field_storage_config_edit_form_alter(&$form, \Drupal\
 }
 
 /**
+ * Implements hook_form_field_storage_config_edit_form_alter().
+ */
+function file_encrypt_form_field_storage_config_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  file_encrypt_form_field_storage_config_edit_form_alter($form, $form_state);
+}
+
+/**
  * Implements hook_field_storage_config_presave().
  */
 function file_encrypt_field_storage_config_presave(FieldStorageConfigInterface $field_storage_config) {
