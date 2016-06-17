@@ -123,7 +123,7 @@ class ImageFileUploadTest extends FunctionalTestBase {
 
     // Ensure the image is actually 200x200 pixes wide 
     $parse_result = UrlHelper::parse($image_src);
-    $image = $this->drupalGet($parse_result['path'], ['query' => $parse_result['query']]);
+    $this->drupalGet($parse_result['path'], ['query' => $parse_result['query']]);
     $this->assertSession()->statusCodeEquals(200);
 
     $this->assertEquals([
