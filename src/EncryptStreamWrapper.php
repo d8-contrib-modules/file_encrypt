@@ -89,11 +89,14 @@ class EncryptStreamWrapper extends LocalStream {
   }
 
   /**
+   * Gets an instance of the encryption stream.
+   *
    * @return \Drupal\encrypt\Stream\EncryptStreamInterface
+   *   The stream interface.
    */
-  protected function getStreamEncryption() {
-    // @todo Use the swappabilty in the encrypt module, once its there.
-    return new NoStreaming(\Drupal::service('encryption'));
+  protected function getStreamEncryption(EncryptionProfileInterface $encryption_profile) {
+    $encryption_method = $encryption_profile->getEncryptionMethod();
+    return $encryption_method->getStreamingInstance();
   }
 
   /**
@@ -135,7 +138,7 @@ class EncryptStreamWrapper extends LocalStream {
 
       // Write to memory.
       $encrypted_resource = fopen($path, 'r');
-      $this->getStreamEncryption()->decrypt($encrypted_resource, $this->handle, $encryption_profile);
+      $this->getStreamEncryption($encryption_profile)->decrypt($encrypted_resource, $this->handle, $encryption_profile);
       fclose($encrypted_resource);
       rewind($this->handle);
 
@@ -182,7 +185,7 @@ class EncryptStreamWrapper extends LocalStream {
     rewind($this->handle);
 
     $output_resource = fopen($this->getLocalPath(), 'w+');
-    $this->getStreamEncryption()->encrypt($this->handle, $output_resource, $encryption_profile);
+    $this->getStreamEncryption($encryption_profile)->encrypt($this->handle, $output_resource, $encryption_profile);
     fclose($output_resource);
 
     // @todo what do we do with this.
