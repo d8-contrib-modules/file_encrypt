@@ -7,6 +7,7 @@ use Drupal\Core\StreamWrapper\LocalStream;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Url;
 use Drupal\encrypt\EncryptionProfileInterface;
+use Drupal\encrypt\Stream\NoStreaming;
 
 /**
  * Provides a scheme wrapper which encrypts / decrypts automatically.
@@ -88,37 +89,11 @@ class EncryptStreamWrapper extends LocalStream {
   }
 
   /**
-   * Decrypts a given file.
-   *
-   * @param string $raw_file
-   *   The encrypted content of the raw file.
-   * @param \Drupal\encrypt\EncryptionProfileInterface $encryption_profile
-   *   The used encryption profile.
-   *
-   * @return string
-   *   The decrypted string.
+   * @return \Drupal\encrypt\Stream\EncryptStreamInterface
    */
-  protected function decrypt($raw_file, EncryptionProfileInterface $encryption_profile) {
-    /** @var \Drupal\encrypt\EncryptService $encryption */
-    $encryption = \Drupal::service('encryption');
-    return $encryption->decrypt($raw_file, $encryption_profile);
-  }
-
-  /**
-   * Encrypts a given file.
-   *
-   * @param string $raw_file
-   *   The descrypted content of the raw file.
-   * @param \Drupal\encrypt\EncryptionProfileInterface $encryption_profile
-   *   The used encryption profile.
-   *
-   * @return string
-   *   The encrypted string.
-   */
-  protected function encrypt($raw_file, EncryptionProfileInterface $encryption_profile) {
-    /** @var \Drupal\encrypt\EncryptService $encryption */
-    $encryption = \Drupal::service('encryption');
-    return $encryption->encrypt($raw_file, $encryption_profile);
+  protected function getStreamEncryption() {
+    // @todo Use the swappabilty in the encrypt module, once its there.
+    return new NoStreaming(\Drupal::service('encryption'));
   }
 
   /**
@@ -157,12 +132,15 @@ class EncryptStreamWrapper extends LocalStream {
     $this->handle = fopen('php://memory', 'w+b');
     // If file exists, decrypt and load it into memory.
     if (file_exists($path)) {
-      $raw_file = file_get_contents($path);
-      $decrypted_file = $this->decrypt($raw_file, $encryption_profile);
-      $this->setFileInfo($decrypted_file, $uri);
+
       // Write to memory.
-      fwrite($this->handle, $decrypted_file);
+      $encrypted_resource = fopen($path, 'r');
+      $this->getStreamEncryption()->decrypt($encrypted_resource, $this->handle, $encryption_profile);
+      fclose($encrypted_resource);
       rewind($this->handle);
+
+      // @todo What do we do with this ...
+      // $this->setFileInfo($decrypted_file, $uri);
     }
     // Set $opened_path.
     if ((bool) $this->handle && $options & STREAM_USE_PATH) {
@@ -202,10 +180,14 @@ class EncryptStreamWrapper extends LocalStream {
 
     // Encrypt file and save.
     rewind($this->handle);
-    $file_contents = stream_get_contents($this->handle);
-    file_put_contents($this->getLocalPath(), $this->encrypt($file_contents, $encryption_profile));
-    // Store important file info.
-    $this->setFileInfo($file_contents, $this->uri);
+
+    $output_resource = fopen($this->getLocalPath(), 'w+');
+    $this->getStreamEncryption()->encrypt($this->handle, $output_resource, $encryption_profile);
+    fclose($output_resource);
+
+    // @todo what do we do with this.
+    // $this->setFileInfo($file_contents, $this->uri);
+
     // Close handle and reset manual key.
     fclose($this->handle);
   }
