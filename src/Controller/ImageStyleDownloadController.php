@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\image\ImageStyleInterface;
-use Drupal\system\FileDownloadController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;

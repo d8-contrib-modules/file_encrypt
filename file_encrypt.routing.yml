@@ -1,7 +1,7 @@
 file_encrypt.file_download:
   path: '/encrypt/files'
   defaults:
-    _controller: \Drupal\system\FileDownloadController::download
+    _controller: 'Drupal\file_encrypt\Controller\FileDownloadController::download'
     scheme: encrypt
   requirements:
     _access: 'TRUE'
