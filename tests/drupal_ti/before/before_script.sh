@@ -20,5 +20,5 @@ mkdir -p "$DRUPAL_TI_DRUPAL_DIR/$DRUPAL_TI_MODULES_PATH"
 cd "$DRUPAL_TI_DRUPAL_DIR/$DRUPAL_TI_MODULES_PATH"
 
 # Manually clone the dependencies
-drush dl key --dev -y
-drush dl encrypt --dev -y
+git clone --depth 1 https://git.drupal.org/project/encrypt.git -b 8.x-3.x
+git clone --depth 1 https://git.drupal.org/project/key.git -b 8.x-1.x
