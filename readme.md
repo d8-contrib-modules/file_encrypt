@@ -21,6 +21,14 @@ For encrypting metadata like title and description use the field_encrypt method.
 
 ## Architecture
 
-@TODO
+The overall architecture contains of one key compoment: an ```encrypt://``` stream
+wrapper. It supports URLs looking like ```encrypt://{encryption_profile}/folder/filename.extension```
+
+On ```\Drupal\file_encrypt\EncryptStreamWrapper::stream_close``` it writes encrypted data to the filesystem.
+On ```\Drupal\file_encrypt\EncryptStreamWrapper::stream_open``` it reades encrypted data and decrypts it.
+
+On top of that the module registers a route on ```/encrypt/files/{encryption_profile}/{...filepath}```, which
+passes along the profile and filepath to the stream wrapper. This allows to use
+the stream wrapper via HTTP.
 
 
